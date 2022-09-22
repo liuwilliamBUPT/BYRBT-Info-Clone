@@ -9,7 +9,7 @@
 // @include     http*://byr.pt*/details.php*
 // @icon        http://byr.pt/favicon.ico
 // @grant       none
-// @version     1.0.0
+// @version     1.0.1
 // @updateURL   https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @downloadURL https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @require     https://byr.pt/js/purify.min.js
@@ -287,7 +287,6 @@ if (GM_info && GM_info.script) {
                 let temp = document.createElement('div');
                 temp.innerHTML = clean
                 var descr = $(temp);
-                console.log(descr.html())
                 // 还原图片链接
                 descr.find('img').each(function () {
                     var img = $(this);
