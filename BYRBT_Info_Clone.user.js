@@ -247,13 +247,25 @@ if (GM_info && GM_info.script) {
                     if (input.hasClass('clone_skip'))
                         fill = false;
                     if (check_array && input.attr('onfocus')) {
+                        fill = false
                         match = input.attr('onfocus').match(/showselect\("([^"]+)"\)/);
                         if (match) {
                             var arr = eval(match[1] + '_array');
                             if (arr) {
-                                if (arr.indexOf(nextValue) < 0) {
-                                    fill = false;
-                                }
+                                // movie_type
+                                nextValue = match[1] === "movie_type" ? nextValue.split('/').reduce((pre, cur)=>{
+                                    if (arr.indexOf(cur) < 0) {
+                                        return pre
+                                    }
+                                    fill = true
+                                    pre.push(cur)
+                                    return pre
+                                }, []).join("/") : (()=>{
+                                    if (arr.indexOf(nextValue) >= 0) {
+                                        fill = true;
+                                        return nextValue
+                                    }
+                                })()
                             }
                         }
                     }
