@@ -1,6 +1,12 @@
 {
     "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+        "editor.formatOnPaste": false, // required 
+        "editor.formatOnType": false, // required
+        "editor.formatOnSave": true, // optional 
+        "editor.formatOnSaveMode": "file", // required to format on save
     },
-    "editor.tabSize": 2
+    "files.autoSave": "onFocusChange", // optional but recommended
+    "editor.tabSize": 2,
+    "javascript.format.insertSpaceBeforeFunctionParenthesis": true
 }
