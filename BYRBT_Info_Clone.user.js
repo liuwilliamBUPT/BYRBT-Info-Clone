@@ -316,6 +316,7 @@ if (GM_info && GM_info.script) {
                   nextValue = (() => {
                     switch (match[1]) {
                       case 'movie_type':
+                      case 'record_area':
                         return nextValue
                           .split('/')
                           .reduce((pre, cur) => {
@@ -327,10 +328,38 @@ if (GM_info && GM_info.script) {
                             return pre
                           }, [])
                           .join('/')
-                      case 'comic_quality':
+                      case 'record_type':
+                      case 'record_group':
+                        // If in documentary upload page, this is the only possibility.
+                        if (next === 1) {
+                          fill = true
+                          return nextValue
+                        } else if (fields.length - next === 2) {
+                          // Including omit season field.
+                          fill = true
+                          return nextValue
+                        }
+                        break
+                      case 'record_season':
+                        {
+                          const regex = /(S[0-2][1-9](E[0-2][1-9])?|全\d+集)/gm
+                          let m
+                          if (
+                            (m = regex.exec(nextValue)) !== null &&
+                            m[0] === nextValue
+                          ) {
+                            fill = true
+                            return nextValue
+                          }
+                        }
+                        break
+                      case 'record_filetype':
+                      case 'comic_quality': {
+                        // Use brace to avoid redeclare.
                         const regex = /^(2160p|4K)$/gm
                         let m
                         if (
+                          // TODO: To perf this.
                           (m = regex.exec(nextValue)) !== null &&
                           m.length === 2 &&
                           nextValue === m[1]
@@ -338,6 +367,7 @@ if (GM_info && GM_info.script) {
                           fill = true
                           return nextValue
                         }
+                      }
                       // If not 2160p or 4K continue to default.
                       default:
                         if (arr.indexOf(nextValue) >= 0) {
