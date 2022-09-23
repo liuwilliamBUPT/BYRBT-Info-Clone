@@ -14,66 +14,71 @@
 // @require     https://byr.pt/js/purify.min.js
 // ==/UserScript==
 'use strict'
-var script_version = ''
-if (GM_info && GM_info.script) {
-  script_version = GM_info.script.version || script_version
+window.script_version = ''
+if (window.GM_info && window.GM_info.script) {
+  window.script_version = window.GM_info.script.version || window.script_version
 }
 
 ;(function ($) {
   // 在种子页面显示相关信息
   if ($('#kdescr').length) {
     // 显示克隆来源、脚本版本等信息
-    var meta = $('#kdescr .byrbt_info_clone:last')
+    const meta = $('#kdescr .byrbt_info_clone:last')
     if (meta.length) {
       $('#kdescr')
         .closest('tr')
         .after('<tr><td></td><td class="byrbt_info_clone_meta"></td></tr>')
-      var meta_td = $('.byrbt_info_clone_meta')
-      var meta_clone = (meta.data('clone') || '').toString().replace(/\D/g, '')
-      var meta_version = (meta.data('version') || '')
-        .toString()
-        .replace(/[^\dA-Za-z-. ]/g, '')
-      if (meta_clone)
-        meta_td.append(
+      // eslint-disable-next-line camelcase
+      const _meta = {
+        td: $('.byrbt_info_clone_meta'),
+        clone: (meta.data('clone') || '').toString().replace(/\D/g, ''),
+        version: (meta.data('version') || '')
+          .toString()
+          .replace(/[^\dA-Za-z-. ]/g, '')
+      }
+
+      if (_meta.clone) {
+        _meta.td.append(
           '种子信息克隆自 <a target="_blank" href="details.php?id=' +
-            meta_clone +
+            _meta.clone +
             '&hit=1">Torrent ' +
-            meta_clone +
+            _meta.clone +
             '</a> '
         )
-      meta_td.append(
+      }
+      _meta.td.append(
         '<div style="float:right">Powered by BYRBT Info Clone ' +
-          meta_version +
+          _meta.version +
           '</div>'
       )
     }
     // 显示动漫信息卡片
     if (
-      $('#type').text().trim() == '动漫' &&
-      $('#sec_type').text().trim() == '动画'
+      $('#type').text().trim() + '' === '动漫' &&
+      $('#sec_type').text().trim() + '' === '动画'
     ) {
-      var title = $('#share').text().trim()
-      var match = title.match(/\[.*?\]\[.*?\]\[(.*?)\]\[(.*?)\]/)
-      var titles = []
+      const title = $('#share').text().trim()
+      let match = title.match(/\[.*?\]\[.*?\]\[(.*?)\]\[(.*?)\]/)
+      let titles = []
       if (match[1]) titles = titles.concat(match[1].split(/\s*\/\s*/))
       if (match[2]) titles.push(match[2])
       if (!titles.length) return
       match = title.match(/\[(\d{4})\.(\d+)\]/)
-      var date
+      let date
       if (match) {
         date = new Date([match[1], match[2], '1'].join('-'))
         date = date.getTime() / 1000
       }
       if (!date) return
-      var query = titles.map(function (title) {
+      const query = titles.map(function (title) {
         return 'titles[]=' + encodeURIComponent(title)
       })
       query.push('date=' + date)
-      var url =
+      const url =
         'https://anydb.depar.cc/anime/card?_cf_cache=1#fade&hover&' +
         query.join('&')
       console.log(url)
-      var iframe = $(
+      const iframe = $(
         '<iframe scrolling="no" style="border:none;width:400px;height:200px;overflow:hidden;position:absolute;right:0;"></iframe>'
       )
       iframe.attr('src', url)
@@ -86,23 +91,23 @@ if (GM_info && GM_info.script) {
   if ($('table.torrents').length) {
     $('table.torrents td.colhead:eq(0)').after('<td class="colhead"></td>')
     $('table.torrents>tbody>tr').each(function () {
-      var tr = $(this)
+      const tr = $(this)
       if (tr.find('table.torrentname').length) {
-        var cat = tr
+        const cat = tr
           .find('a[href^="?cat="]')
           .attr('href')
           .match(/cat=(\d+)/)[1]
-        var id = tr
+        const id = tr
           .find('table.torrentname td:nth-child(1) a')
           .attr('href')
           .match(/id=(\d+)/)[1]
-        tr.find('td:eq(0)').after(
-          '<td class="rowfollow"><a title="点击克隆种子信息" target="_blank" href="upload.php?type=' +
-            cat +
-            '#clone_' +
-            id +
-            '"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGHSURBVDhPfVHNTsJAEN538QVIfAyfgHLQUNQDD6EShCKevRhRiyYmejLRA0qhpQJiRBLjG+hJEyP+HBnn2+5qG1a/5Mu3MzszO/0q8tWD1+XKPuUqLrNuoEu4R50wAZfA1z8EUKdakrCdaMCtEDRk3jFHijiDQI7rVEsStuPKAgx4ZD0ZjuiZ9bTbpRfWBzVgkT9FtSShN9Cvo6E6lyarciiZ3jyijFOnhbJLtskXu7QnB5wFIb2zeoMBZbgR+FD8VDT6Ypd2ZdBoXtJFy6N+v0dWMcrFfdFEjDyA7YW9XpNBs+lJ7YUdsgo1mvBZ+3I8uqcnpYh/B7AvekDgtykMfLrpX1F6bUfm8Bqo/whU5wC5wVI58iAOa3VbKnx5Yz3vXdNYKWLkAfgn8hvuGEOwCZhjT+YL0QbwpeF51O6ECUUegH/4kynmbJzZmC8TNsPzWgnVfuFBrp9G3JfA9ylgb36ImPPAnwNMvpiAOtWShL2y1da+ZIvTRB738E+1TGGGmfDFTJH6Bk9fZApqlbl/AAAAAElFTkSuQmCC"></a></td>'
-        )
+        tr.find('td:eq(0)').after(`
+        <td class="rowfollow">
+          <a title="点击克隆种子信息" target="_blank" href="upload.php?type=${cat}#clone_${id}">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGHSURBVDhPfVHNTsJAEN538QVIfAyfgHLQUNQDD6EShCKevRhRiyYmejLRA0qhpQJiRBLjG+hJEyP+HBnn2+5qG1a/5Mu3MzszO/0q8tWD1+XKPuUqLrNuoEu4R50wAZfA1z8EUKdakrCdaMCtEDRk3jFHijiDQI7rVEsStuPKAgx4ZD0ZjuiZ9bTbpRfWBzVgkT9FtSShN9Cvo6E6lyarciiZ3jyijFOnhbJLtskXu7QnB5wFIb2zeoMBZbgR+FD8VDT6Ypd2ZdBoXtJFy6N+v0dWMcrFfdFEjDyA7YW9XpNBs+lJ7YUdsgo1mvBZ+3I8uqcnpYh/B7AvekDgtykMfLrpX1F6bUfm8Bqo/whU5wC5wVI58iAOa3VbKnx5Yz3vXdNYKWLkAfgn8hvuGEOwCZhjT+YL0QbwpeF51O6ECUUegH/4kynmbJzZmC8TNsPzWgnVfuFBrp9G3JfA9ylgb36ImPPAnwNMvpiAOtWShL2y1da+ZIvTRB738E+1TGGGmfDFTJH6Bk9fZApqlbl/AAAAAElFTkSuQmCC">
+          </a>
+        </td>
+        `)
       }
     })
     return
@@ -119,14 +124,15 @@ if (GM_info && GM_info.script) {
   $('input[name=dburl]').addClass('clone_skip')
 
   // 通过分析种子，获取待发布文件名，并根据文件名自动填写表单中的某些字段
-  var filename
-  function get_match(str, reg, group) {
+  let filename
+  // TODO: Use this to simplify some logic.
+  function getMatch (str, reg, group) {
     group = group || 1
-    var match = str.match(reg)
+    const match = str.match(reg)
     if (match && match[group]) return match[group]
     else return ''
   }
-  function build_regexp(template, array) {
+  function buildRegexp (template, array) {
     return new RegExp(template.replace('ARRAY', array.join('|')), 'i')
   }
   $('#compose>table tr:eq(3)').after(
@@ -139,83 +145,94 @@ if (GM_info && GM_info.script) {
       '.clone_auto_field_new .clone_auto_field_val {font-weight:bold;color:red;}' +
       '</style>'
   )
-  function analyse_filename() {
+  function analyzeFilename () {
     $('#clone_auto').hide()
     if (!filename) return
-    var type = $('input[name=type]').val()
-    var fields = {}
-    if (type == 404) {
-      fields = {
-        subteam: get_match(filename, /^\[([^\]]+)\]\[([^\]]+)\]/, 1),
-        comic_ename: get_match(
-          filename,
-          /^\[([^\]]+)\]\[([^\]]+)\]/,
-          2
-        ).replace(/_/g, ' '),
-        comic_episode: get_match(filename, /\[(\d+)\]/),
-        comic_quality: get_match(
-          filename,
-          build_regexp('\\[(ARRAY)\\]', comic_quality_array)
-        ).toLowerCase(),
-        comic_filetype: get_match(
-          filename,
-          build_regexp('\\.(ARRAY)$', comic_filetype_array)
-        ).toUpperCase(),
-      }
-    }
-    if (type == 401) {
-      fields = {
-        tv_ename: filename,
-        tv_season: get_match(filename, /\.([S\dE\-]+)\./),
-        tv_filetype: get_match(
-          filename,
-          build_regexp('\\.(ARRAY)$', tv_filetype_array)
-        ).toUpperCase(),
-      }
-      if (fields.tv_filetype)
-        fields.tv_ename = filename.replace(
-          new RegExp('\\.' + fields.tv_filetype + '$', 'i'),
-          ''
-        )
-    }
-    if (type == 408) {
-      fields = {
-        ename0day: filename,
-      }
+    const type = $('input[name=type]').val()
+    let fields = {}
+    switch (+type) {
+      case 404:
+        fields = {
+          subteam: getMatch(filename, /^\[([^\]]+)\]\[([^\]]+)\]/, 1),
+          comic_ename: getMatch(
+            filename,
+            /^\[([^\]]+)\]\[([^\]]+)\]/,
+            2
+          ).replace(/_/g, ' '),
+          comic_episode: getMatch(filename, /\[(\d+)\]/),
+          comic_quality: getMatch(
+            filename,
+            buildRegexp('\\[(ARRAY)\\]', window.comic_quality_array)
+          ).toLowerCase(),
+          comic_filetype: getMatch(
+            filename,
+            buildRegexp('\\.(ARRAY)$', window.comic_filetype_array)
+          ).toUpperCase()
+        }
+        break
+      case 401:
+        fields = {
+          tv_ename: filename,
+          // TODO: check this.
+          // eslint-disable-next-line no-useless-escape
+          tv_season: getMatch(filename, /\.([S\dE\-]+)\./),
+          tv_filetype: getMatch(
+            filename,
+            buildRegexp('\\.(ARRAY)$', window.tv_filetype_array)
+          ).toUpperCase()
+        }
+        if (fields.tv_filetype) {
+          fields.tv_ename = filename.replace(
+            new RegExp('\\.' + fields.tv_filetype + '$', 'i'),
+            ''
+          )
+        }
+        break
+      case 408:
+        fields = {
+          ename0day: filename
+        }
+        break
+      default:
+        break
     }
     $('#clone_auto_fields').html('')
-    for (var key in fields) {
-      var val = fields[key]
-      var input = $('[name=' + key + ']')
+    for (const key in fields) {
+      const val = fields[key]
+      const input = $('[name=' + key + ']')
       if (!val || !input.length) continue
-      var name = input.closest('tr').find('td:eq(0)').text()
-      var span = $(
-        '<span class="clone_auto_field"><span class="clone_auto_field_name">' +
-          name +
-          '</span>：<span class="clone_auto_field_val">' +
-          val +
-          '</span></span>'
-      )
+      const name = input.closest('tr').find('td:eq(0)').text()
+      const span = $(`
+        <span class="clone_auto_field">
+          <span class="clone_auto_field_name"> 
+            ${name}
+          </span>
+          <span class="clone_auto_field_val">
+            ${val}
+          </span>
+        </span>
+      `)
       span.data('key', key)
       span.data('val', val)
-      if (input.val() != val) span.addClass('clone_auto_field_new')
+      if (input.val() !== val) span.addClass('clone_auto_field_new')
       $('#clone_auto_fields').append(span)
     }
-    if (type == 404) {
-      var link = $(
+    if (+type === 404) {
+      const link = $(
         '<a rel="noopener noreferrer">动漫板块推荐尝试全新的 BYRBT Bangumi Info 脚本，对于多数新番可以全自动生成包括简介在内的大部分信息</a>'
       )
-      if ($('#bangumi_info_row').length)
+      if ($('#bangumi_info_row').length) {
         link.attr('href', '#bangumi_info_row').click(function () {
           $('#bangumi_info_process').click()
         })
-      else
+      } else {
         link
           .attr(
             'href',
             'https://greasyfork.org/zh-CN/scripts/39367-byrbt-bangumi-info'
           )
           .attr('target', '_blank')
+      }
       $('#clone_auto_fields').append('<br>').append(link)
     }
     $('#clone_auto_fields').append(
@@ -223,24 +240,24 @@ if (GM_info && GM_info.script) {
     )
     if ($('.clone_auto_field').length) $('#clone_auto').show()
   }
-  analyse_filename()
+  analyzeFilename()
   $('#clone_auto_fields').on('click', '.clone_auto_field', function () {
-    var span = $(this)
-    var input = $('[name=' + span.data('key') + ']')
+    const span = $(this)
+    const input = $('[name=' + span.data('key') + ']')
     input.val(span.data('val'))
-    analyse_filename()
+    analyzeFilename()
   })
   if (window.File && window.FileReader && window.FileList && window.Blob) {
     document.getElementById('torrent').addEventListener('change', function (e) {
       filename = ''
-      var f = e.target.files[0]
+      const f = e.target.files[0]
       if (f) {
-        var r = new FileReader()
+        const r = new FileReader()
         r.onload = function (e) {
-          var torrent = e.target.result
-          var match = torrent.match(/4:name(\d+):(.*)/)
+          const torrent = e.target.result
+          const match = torrent.match(/4:name(\d+):(.*)/)
           if (match) filename = match[2].substring(0, match[1])
-          analyse_filename()
+          analyzeFilename()
         }
         r.readAsText(f)
       }
@@ -250,9 +267,9 @@ if (GM_info && GM_info.script) {
   // 点击克隆按钮
   $('#clone_btn').click(function () {
     // 获取要克隆的种子编号
-    var from = $('#clone_from').val().trim()
-    var info = $('#clone_info')
-    var match = from.match(/id=(\d+)/)
+    let from = $('#clone_from').val().trim()
+    const info = $('#clone_info')
+    const match = from.match(/id=(\d+)/)
     if (match) {
       from = match[1]
     }
@@ -271,12 +288,12 @@ if (GM_info && GM_info.script) {
             dirty = m[1]
           }
           dirty = dirty.replace(/\\"/g, '"').replace(/\\r\\n/g, '\r\n')
-          let clean = DOMPurify.sanitize(dirty)
+          const clean = window.DOMPurify.sanitize(dirty)
 
-          var title = resp.match(/<title[^>]*>[\s\S]*<\/title>/gi)[0]
-          var body = resp.match(/<body[^>]*>[\s\S]*<\/body>/gi)[0]
-          var page = $(body) // 构造 jQuery 对象
-          var match = title.match(/种子详情 &quot;(.*)&quot; - Powered/)
+          let title = resp.match(/<title[^>]*>[\s\S]*<\/title>/gi)[0]
+          const body = resp.match(/<body[^>]*>[\s\S]*<\/body>/gi)[0]
+          const page = $(body) // 构造 jQuery 对象
+          let match = title.match(/种子详情 &quot;(.*)&quot; - Powered/)
           if (!match) {
             info.text('失败，可能由于种子不存在或者网络问题')
             return
@@ -285,33 +302,34 @@ if (GM_info && GM_info.script) {
           // 利用种子标题中的信息填写表单
           title = $('<textarea />').html(title).text() // 处理HTML entity
           // 将标题中的字段拆开
-          var fields = title.match(/\[[^\]]*\]/g)
-          for (var i = 0; i < fields.length; ++i) {
+          const fields = title.match(/\[[^\]]*\]/g)
+          for (let i = 0; i < fields.length; ++i) {
             fields[i] = fields[i].replace(/^\[|\]$/g, '')
           }
-          var next = 0
-          var check_array = true // 是否需要检查字段取值
-          var input_count = $('#compose :text:not(.clone_skip)').length
-          if (input_count == fields.length - 1) {
+          let next = 0
+          let checkArray = true // 是否需要检查字段取值
+          const inputCount = $('#compose :text:not(.clone_skip)').length
+          if (inputCount === fields.length - 1) {
             fields.shift() // 处理二级标题带来的多余字段
           }
-          if (input_count == fields.length) {
+          if (inputCount === fields.length) {
             // 如果标题中的字段数和需要填写的字段数一致，则不进行字段取值检查
-            check_array = false
+            checkArray = false
           }
           $('#compose :text').each(function () {
             if (next >= fields.length) return
-            var nextValue = fields[next]
-            var input = $(this)
+            let nextValue = fields[next]
+            const input = $(this)
 
             // 判断是否可以填入
-            var fill = true
+            let fill = true
             if (input.hasClass('clone_skip')) fill = false
-            if (check_array && input.attr('onfocus')) {
+            if (checkArray && input.attr('onfocus')) {
               fill = false
               match = input.attr('onfocus').match(/showselect\("([^"]+)"\)/)
               if (match) {
-                var arr = eval(match[1] + '_array')
+                // eslint-disable-next-line no-eval
+                const arr = eval(match[1] + '_array')
                 if (arr) {
                   nextValue = (() => {
                     switch (match[1]) {
@@ -369,6 +387,7 @@ if (GM_info && GM_info.script) {
                         }
                       }
                       // If not 2160p or 4K continue to default.
+                      // eslint-disable-next-line no-fallthrough
                       default:
                         if (arr.indexOf(nextValue) >= 0) {
                           fill = true
@@ -396,12 +415,13 @@ if (GM_info && GM_info.script) {
           $('input[name=small_descr]').val(page.find('#subtitle li').text())
 
           // 填写IMDb链接
-          if (page.find('.imdbRatingPlugin').length)
+          if (page.find('.imdbRatingPlugin').length) {
             $('input[name=url]').val(
               'http://www.imdb.com/title/' +
                 page.find('.imdbRatingPlugin').data('title') +
                 '/'
             )
+          }
 
           // 填写豆瓣链接
           $('input[name=dburl]').val(
@@ -423,16 +443,16 @@ if (GM_info && GM_info.script) {
 
           // 填写描述
 
-          let temp = document.createElement('div')
+          const temp = document.createElement('div')
           temp.innerHTML = clean
-          var descr = $(temp)
+          const descr = $(temp)
           // 还原图片链接
           descr.find('img').each(function () {
-            var img = $(this)
+            const img = $(this)
             img.removeAttr('onload')
             img.removeAttr('pagespeed_url_hash')
             img.removeAttr('data-pagespeed-url-hash')
-            var src = img.attr('src')
+            let src = img.attr('src')
             src = src.replace(
               /images\/(\d+x\d+x|x)(.*)\.pagespeed\.ic.*/g,
               'images/$2'
@@ -446,20 +466,20 @@ if (GM_info && GM_info.script) {
           descr.find('.byrbt_info_clone').remove()
 
           descr.append(`
-            <div class="byrbt_info_clone" data-clone="${from}" data-version="${script_version}" style="display:none">
+            <div class="byrbt_info_clone" data-clone="${from}" data-version="${window.script_version}" style="display:none">
               <a href="https://github.com/liuwilliamBUPT/BYRBT-Info-Clone">
                 Powered by BYRBT Info Clone
               </a>
             </div>
           `)
-          CKEDITOR.instances.descr.setData(descr.html())
+          window.CKEDITOR.instances.descr.setData(descr.html())
 
           // 默认勾选匿名
           $('input[name=uplver]').prop('checked', true)
 
           info.text('克隆完成')
 
-          analyse_filename()
+          analyzeFilename()
         }
       )
     } else {
@@ -468,9 +488,9 @@ if (GM_info && GM_info.script) {
     return false
   })
 
-  CKEDITOR.on('instanceReady', function (evt) {
+  window.CKEDITOR.on('instanceReady', function (evt) {
     // 检查hash中是否指定了需要克隆的种子
-    var match = location.href.match(/#clone_(\d+)/)
+    const match = location.href.match(/#clone_(\d+)/)
     if (match) {
       history.pushState(
         '',
@@ -481,4 +501,4 @@ if (GM_info && GM_info.script) {
       $('#clone_btn').click()
     }
   })
-})(jQuery)
+})(window.jQuery)
