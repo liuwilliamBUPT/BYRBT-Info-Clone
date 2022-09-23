@@ -173,9 +173,7 @@ if (window.GM_info && window.GM_info.script) {
       case 401:
         fields = {
           tv_ename: filename,
-          // TODO: check this.
-          // eslint-disable-next-line no-useless-escape
-          tv_season: getMatch(filename, /\.([S\dE\-]+)\./),
+          tv_season: getMatch(filename, /\.([S\dE-]+)\./),
           tv_filetype: getMatch(
             filename,
             buildRegexp('\\.(ARRAY)$', window.tv_filetype_array)
