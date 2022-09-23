@@ -8,7 +8,7 @@
 // @include     http*://byr.pt*/details.php*
 // @icon        http://byr.pt/favicon.ico
 // @grant       none
-// @version     1.0.2
+// @version     1.0.3
 // @updateURL   https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @downloadURL https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @require     https://byr.pt/js/purify.min.js
