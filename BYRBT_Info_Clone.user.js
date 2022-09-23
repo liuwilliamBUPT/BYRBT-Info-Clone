@@ -1,20 +1,19 @@
 // ==UserScript==
 // @name        BYRBT Info Clone
-// @author      Deparsoul
 // @author      liuwilliam
+// @author      Original Author: Deparsoul
 // @description 一键克隆已有种子的信息
-// @namespace   https://greasyfork.org/users/726
 // @include     http*://byr.pt*/torrents.php*
 // @include     http*://byr.pt*/upload.php?type=*
 // @include     http*://byr.pt*/details.php*
 // @icon        http://byr.pt/favicon.ico
 // @grant       none
-// @version     1.0.1
+// @version     1.0.2
 // @updateURL   https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @downloadURL https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @require     https://byr.pt/js/purify.min.js
 // ==/UserScript==
-
+'use strict'
 var script_version = ''
 if (GM_info && GM_info.script) {
   script_version = GM_info.script.version || script_version
@@ -317,6 +316,7 @@ if (GM_info && GM_info.script) {
                   nextValue = (() => {
                     switch (match[1]) {
                       case 'movie_type':
+                      case 'record_area':
                         return nextValue
                           .split('/')
                           .reduce((pre, cur) => {
@@ -328,10 +328,38 @@ if (GM_info && GM_info.script) {
                             return pre
                           }, [])
                           .join('/')
-                      case 'comic_quality':
+                      case 'record_type':
+                      case 'record_group':
+                        // If in documentary upload page, this is the only possibility.
+                        if (next === 1) {
+                          fill = true
+                          return nextValue
+                        } else if (fields.length - next === 2) {
+                          // Including omit season field.
+                          fill = true
+                          return nextValue
+                        }
+                        break
+                      case 'record_season':
+                        {
+                          const regex = /(S[0-2][1-9](E[0-2][1-9])?|全\d+集)/gm
+                          let m
+                          if (
+                            (m = regex.exec(nextValue)) !== null &&
+                            m[0] === nextValue
+                          ) {
+                            fill = true
+                            return nextValue
+                          }
+                        }
+                        break
+                      case 'record_filetype':
+                      case 'comic_quality': {
+                        // Use brace to avoid redeclare.
                         const regex = /^(2160p|4K)$/gm
                         let m
                         if (
+                          // TODO: To perf this.
                           (m = regex.exec(nextValue)) !== null &&
                           m.length === 2 &&
                           nextValue === m[1]
@@ -339,6 +367,7 @@ if (GM_info && GM_info.script) {
                           fill = true
                           return nextValue
                         }
+                      }
                       // If not 2160p or 4K continue to default.
                       default:
                         if (arr.indexOf(nextValue) >= 0) {
@@ -415,13 +444,14 @@ if (GM_info && GM_info.script) {
           descr.find('.autoseed').remove()
           // 添加元信息
           descr.find('.byrbt_info_clone').remove()
-          descr.append(
-            '<div class="byrbt_info_clone" data-clone="' +
-              from +
-              '" data-version="' +
-              script_version +
-              '" style="display:none">Powered by BYRBT Info Clone</div>'
-          )
+
+          descr.append(`
+            <div class="byrbt_info_clone" data-clone="${from}" data-version="${script_version}" style="display:none">
+              <a href="https://github.com/liuwilliamBUPT/BYRBT-Info-Clone">
+                Powered by BYRBT Info Clone
+              </a>
+            </div>
+          `)
           CKEDITOR.instances.descr.setData(descr.html())
 
           // 默认勾选匿名

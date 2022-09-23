@@ -1,25 +1,15 @@
 module.exports = {
-  root: true,
   env: {
     browser: true,
-    node: true,
-    es6: true,
+    es2021: true
   },
+  extends: 'standard',
+  overrides: [
+  ],
   parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
+    ecmaVersion: 'latest',
+    sourceType: 'module'
   },
-  extends: ['prettier', 'plugin:prettier/recommended'],
   rules: {
-    'no-use-before-define': 'off',
-    'no-unused-vars': [
-      'error',
-      {
-        argsIgnorePattern: '^h$',
-        varsIgnorePattern: '^h$',
-      },
-    ],
-    'space-before-function-paren': 'off',
-		'curly': 'all',
-  },
+  }
 }
