@@ -1,9 +1,8 @@
 // ==UserScript==
 // @name        BYRBT Info Clone
-// @author      Deparsoul
 // @author      liuwilliam
+// @author      Original Author: Deparsoul
 // @description 一键克隆已有种子的信息
-// @namespace   https://greasyfork.org/users/726
 // @include     http*://byr.pt*/torrents.php*
 // @include     http*://byr.pt*/upload.php?type=*
 // @include     http*://byr.pt*/details.php*
@@ -14,7 +13,7 @@
 // @downloadURL https://raw.githubusercontent.com/liuwilliamBUPT/BYRBT-Info-Clone/master/BYRBT_Info_Clone.user.js
 // @require     https://byr.pt/js/purify.min.js
 // ==/UserScript==
-
+'use strict'
 var script_version = ''
 if (GM_info && GM_info.script) {
   script_version = GM_info.script.version || script_version
@@ -415,13 +414,14 @@ if (GM_info && GM_info.script) {
           descr.find('.autoseed').remove()
           // 添加元信息
           descr.find('.byrbt_info_clone').remove()
-          descr.append(
-            '<div class="byrbt_info_clone" data-clone="' +
-              from +
-              '" data-version="' +
-              script_version +
-              '" style="display:none">Powered by BYRBT Info Clone</div>'
-          )
+
+          descr.append(`
+            <div class="byrbt_info_clone" data-clone="${from}" data-version="${script_version}" style="display:none">
+              <a href="https://github.com/liuwilliamBUPT/BYRBT-Info-Clone">
+                Powered by BYRBT Info Clone
+              </a>
+            </div>
+          `)
           CKEDITOR.instances.descr.setData(descr.html())
 
           // 默认勾选匿名
