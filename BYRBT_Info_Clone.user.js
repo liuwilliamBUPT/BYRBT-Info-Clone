@@ -396,6 +396,14 @@ if (window.GM_info && window.GM_info.script) {
                 }
               }
             }
+
+            // polyfill for single episode documentary.
+            if (
+              input.attr('id') === 'record_season' &&
+              /^(480p|576p|720p|1080(i|p)|2160p|4K)/gm.exec(nextValue) !== null
+            ) {
+              fill = false
+            }
             if (fill) {
               input.val(nextValue)
               ++next
